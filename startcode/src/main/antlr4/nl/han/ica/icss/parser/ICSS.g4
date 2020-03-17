@@ -1,5 +1,31 @@
 grammar ICSS;
 
+
+//--- PARSER: ---
+stylesheet: variabledeclaration * stylerule * | EOF;
+
+
+stylerule: tag OPEN_BRACE styledeclaration * CLOSE_BRACE;
+styledeclaration: property COLON value SEMICOLON;
+
+
+variabledeclaration: variablename ASSIGNMENT_OPERATOR value SEMICOLON;
+variablename: CAPITAL_IDENT;
+property: LOWER_IDENT;
+
+
+value
+    : COLOR
+    | PIXELSIZE
+    | PERCENTAGE
+    | SCALAR
+    | variablename
+    | boolean;
+
+boolean: TRUE | FALSE;
+
+tag: LOWER_IDENT | ID_IDENT | CLASS_IDENT;
+
 //--- LEXER: ---
 // IF support:
 IF: 'if';
@@ -37,7 +63,3 @@ PLUS: '+';
 MIN: '-';
 MUL: '*';
 ASSIGNMENT_OPERATOR: ':=';
-
-//--- PARSER: ---
-
-stylesheet: EOF;

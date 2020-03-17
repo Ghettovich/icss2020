@@ -28,9 +28,7 @@ public class ASTNode {
     By implementing this method in a subclass you can easily create AST nodes
       incrementally.
     */
-    public ASTNode addChild(ASTNode child) {
-            return this;
-    }
+    public ASTNode addChild(ASTNode child) { return this; }
     /*
     * By implementing this method you can easily make transformations that prune the AST.
     */
