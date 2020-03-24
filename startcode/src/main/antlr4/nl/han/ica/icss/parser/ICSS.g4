@@ -2,29 +2,57 @@ grammar ICSS;
 
 
 //--- PARSER: ---
-stylesheet: variabledeclaration * stylerule * | EOF;
+
+stylesheet: declarationRule * | EOF;
 
 
-stylerule: tag OPEN_BRACE styledeclaration * CLOSE_BRACE;
-styledeclaration: property COLON value SEMICOLON;
+declarationRule: variabledeclaration | stylerule ;
 
 
-variabledeclaration: variablename ASSIGNMENT_OPERATOR value SEMICOLON;
-variablename: CAPITAL_IDENT;
-property: LOWER_IDENT;
+stylerule: selector
+            OPEN_BRACE
+                declaration *
+            CLOSE_BRACE
+            ;
+
+declaration: styledeclaration | variabledeclaration;
+
+styledeclaration: propertyname COLON expression * SEMICOLON;
+variabledeclaration: variablereference ASSIGNMENT_OPERATOR value SEMICOLON;
 
 
-value
-    : COLOR
-    | PIXELSIZE
-    | PERCENTAGE
-    | SCALAR
-    | variablename
-    | boolean;
+variablereference: CAPITAL_IDENT;
+propertyname: LOWER_IDENT;
 
-boolean: TRUE | FALSE;
 
-tag: LOWER_IDENT | ID_IDENT | CLASS_IDENT;
+value: colorLiteral
+    | pixelLiteral
+    | percentageLiteral
+    | scalarLiteral
+    | boolLiteral
+    | variablereference;
+
+
+boolLiteral: TRUE | FALSE;
+colorLiteral: COLOR;
+percentageLiteral: PERCENTAGE;
+pixelLiteral: PIXELSIZE;
+scalarLiteral: SCALAR;
+
+operators:PLUS
+          | MIN
+          | MUL;
+expression: value (operators? value)*;
+
+
+selector: selectortag
+    | selectorid
+    | selectorclass;
+
+selectortag: LOWER_IDENT;
+selectorid: ID_IDENT;
+selectorclass: CLASS_IDENT;
+
 
 //--- LEXER: ---
 // IF support:
