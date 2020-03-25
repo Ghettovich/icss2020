@@ -3,55 +3,64 @@ grammar ICSS;
 
 //--- PARSER: ---
 
-stylesheet: declarationRule * | EOF;
+stylesheet: declarationRule * EOF;
 
 
-declarationRule: variabledeclaration | stylerule ;
+declarationRule: variableassignment | stylerule ;
 
 
 stylerule: selector
             OPEN_BRACE
-                declaration *
+                declarations *
             CLOSE_BRACE
             ;
 
-declaration: styledeclaration | variabledeclaration;
+declarations: variableassignment | styledeclaration ;
 
 styledeclaration: propertyname COLON expression * SEMICOLON;
-variabledeclaration: variablereference ASSIGNMENT_OPERATOR value SEMICOLON;
 
+variableassignment: variablereference ASSIGNMENT_OPERATOR expression SEMICOLON;
 
-variablereference: CAPITAL_IDENT;
-propertyname: LOWER_IDENT;
+expression: value (operators? value)*;
 
-
-value: colorLiteral
+value
+    : colorLiteral
     | pixelLiteral
     | percentageLiteral
     | scalarLiteral
     | boolLiteral
     | variablereference;
 
+operators
+    : addOperator
+    | substractOperator
+    | multiplyOperator;
 
+selector
+    : selectortag
+    | selectorid
+    | selectorclass;
+
+
+variablereference: CAPITAL_IDENT;
+propertyname: LOWER_IDENT;
+
+//operators
+addOperator:PLUS;
+substractOperator:MIN;
+multiplyOperator:MUL;
+
+//selectors
+selectortag: LOWER_IDENT;
+selectorid: ID_IDENT;
+selectorclass: CLASS_IDENT;
+
+//literals
 boolLiteral: TRUE | FALSE;
 colorLiteral: COLOR;
 percentageLiteral: PERCENTAGE;
 pixelLiteral: PIXELSIZE;
 scalarLiteral: SCALAR;
-
-operators:PLUS
-          | MIN
-          | MUL;
-expression: value (operators? value)*;
-
-
-selector: selectortag
-    | selectorid
-    | selectorclass;
-
-selectortag: LOWER_IDENT;
-selectorid: ID_IDENT;
-selectorclass: CLASS_IDENT;
 
 
 //--- LEXER: ---
