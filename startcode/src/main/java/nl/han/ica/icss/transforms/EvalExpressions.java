@@ -11,6 +11,7 @@ import java.util.LinkedList;
 
 public class EvalExpressions implements Transform {
 
+    private HashMap<String, Literal> globalVariables;
     private LinkedList<HashMap<String, Literal>> variableValues;
 
     public EvalExpressions() {
@@ -21,15 +22,17 @@ public class EvalExpressions implements Transform {
     public void apply(AST ast) {
         variableValues = new LinkedList<>();
         variableValues.push(new HashMap<String, Literal>());
+        globalVariables = new HashMap<>();
 
-        for (var node: ast.root.getChildren()) {
+        for (ASTNode node: ast.root.getChildren()) {
 
             if(node instanceof VariableAssignment) {
                 // fill hashmap in linked list
-                variableValues.getLast().put(getVariableReferenceName(((VariableAssignment) node).name), (Literal) getVariableReferenceLiteral((((VariableAssignment) node).expression)));
+                globalVariables.put(getVariableReferenceName(((VariableAssignment) node).name),
+                        (Literal) getVariableReferenceLiteral((((VariableAssignment) node).expression), null));
             }
             if(node instanceof Stylerule) {
-
+                checkStyleRule((Stylerule)node);
             }
         }
     }
@@ -38,13 +41,30 @@ public class EvalExpressions implements Transform {
         return variableReference.name;
     }
 
-    private Expression getVariableReferenceLiteral(Expression expression) {
+    private void checkStyleRule(Stylerule stylerule) {
+        HashMap<String, Literal> scopeVariables = new HashMap<>();
+        for(ASTNode node: stylerule.body) {
+            if(node instanceof VariableAssignment) {
+                scopeVariables.put(getVariableReferenceName(((VariableAssignment) node).name),
+                        (Literal) getVariableReferenceLiteral((((VariableAssignment) node).expression), scopeVariables));
+            }
+        }
+    }
+
+    private Expression getVariableReferenceLiteral(Expression expression, HashMap<String, Literal> scopeVariables) {
 
         if(expression instanceof Operation) {
-            return getOperationValue((Operation) expression);
+            return getOperationValue((Operation) expression, scopeVariables);
         }
         if(expression instanceof VariableReference) {
-            return variableValues.getLast().get(getVariableReferenceName((VariableReference) expression));
+            // check if exists within his OWN scope
+            if(scopeVariables != null && scopeVariables.containsKey(getVariableReferenceName((VariableReference) expression))) {
+                return scopeVariables.get(getVariableReferenceName((VariableReference) expression));
+            }
+            // if not in local scope it should be in global scope
+            else {
+                return globalVariables.get(getVariableReferenceName((VariableReference) expression));
+            }
         }
         if(expression instanceof PixelLiteral) {
             return (PixelLiteral) expression;
@@ -63,9 +83,9 @@ public class EvalExpressions implements Transform {
         return null;
     }
 
-    private Literal getOperationValue(Operation operation) {
-        Literal lhs = getValueFromExpression(operation.lhs);
-        Literal rhs = getValueFromExpression(operation.rhs);
+    private Literal getOperationValue(Operation operation, HashMap<String, Literal> scopeVariables) {
+        Literal lhs = getValueFromExpression(operation.lhs, scopeVariables);
+        Literal rhs = getValueFromExpression(operation.rhs, scopeVariables);
         Literal literal = calculateValue(lhs, rhs, operation);
         return literal;
     }
@@ -110,12 +130,12 @@ public class EvalExpressions implements Transform {
         return null;
     }
 
-    private Literal getValueFromExpression(Expression expression) {
+    private Literal getValueFromExpression(Expression expression, HashMap<String, Literal> scopeVariables) {
         if(expression instanceof VariableReference) {
-            return (Literal) getVariableReferenceLiteral(expression);
+            return (Literal) getVariableReferenceLiteral(expression, scopeVariables);
         }
         if(expression instanceof Operation) {
-            return getOperationValue((Operation) expression);
+            return getOperationValue((Operation) expression, scopeVariables);
         }
         // in this case we can always assume it's a literal
         return (Literal) expression;
