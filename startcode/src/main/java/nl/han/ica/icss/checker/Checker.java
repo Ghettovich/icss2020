@@ -6,6 +6,7 @@ import nl.han.ica.icss.ast.*;
 import nl.han.ica.icss.ast.literals.ColorLiteral;
 import nl.han.ica.icss.ast.literals.PercentageLiteral;
 import nl.han.ica.icss.ast.literals.PixelLiteral;
+import nl.han.ica.icss.ast.literals.ScalarLiteral;
 import nl.han.ica.icss.ast.operations.AddOperation;
 import nl.han.ica.icss.ast.operations.MultiplyOperation;
 import nl.han.ica.icss.ast.operations.SubtractOperation;
@@ -57,7 +58,7 @@ public class Checker {
         }
         if (node instanceof Operation) {
             Operation o = (Operation) node;
-            node = getOperationReference(o);
+            node = getOperationReference(o, scopeVariables);
         }
         if (node instanceof ColorLiteral
                 && !colorDeclarations.contains(declaration.property.name)) {
@@ -76,7 +77,7 @@ public class Checker {
     private ASTNode getVariableReference(VariableReference variableReference, HashMap<VariableReference, VariableAssignment> scopeVariables) {
         if (variableAssignmentHashMap.containsKey(variableReference)) {
             if(variableAssignmentHashMap.get(variableReference).expression instanceof Operation) {
-                 return getOperationReference((Operation)variableAssignmentHashMap.get(variableReference).expression);
+                 return getOperationReference((Operation)variableAssignmentHashMap.get(variableReference).expression, scopeVariables);
             }
             else {
                 return variableAssignmentHashMap.get(variableReference).expression;
@@ -84,7 +85,7 @@ public class Checker {
         }
         if (scopeVariables.containsKey(variableReference)) {
             if(scopeVariables.get(variableReference).expression instanceof Operation) {
-                return getOperationReference((Operation)scopeVariables.get(variableReference).expression);
+                return getOperationReference((Operation)scopeVariables.get(variableReference).expression, scopeVariables);
             }
             else {
                 return scopeVariables.get(variableReference).expression;
@@ -96,26 +97,54 @@ public class Checker {
         }
     }
 
-    private ASTNode getOperationReference(Operation operation) {
-        // Operations will also be checked here
-        if(operation instanceof AddOperation) {
+    private ASTNode getOperationReference(Operation operation, HashMap<VariableReference, VariableAssignment> scopeVariables) {
+        Expression lhs = operation.lhs;
+        Expression rhs = operation.rhs;
 
+        if (lhs instanceof VariableReference) {
+            lhs = (Expression) getVariableReference((VariableReference) lhs, scopeVariables);
         }
-        if(operation instanceof SubtractOperation) {
+        if (lhs instanceof Operation) {
+            Operation o = (Operation) lhs;
+            lhs = (Expression) getOperationReference(o, scopeVariables);
+        }
 
+        if (rhs instanceof VariableReference) {
+            rhs = (Expression) getVariableReference((VariableReference) rhs, scopeVariables);
         }
+        if (rhs instanceof Operation) {
+            Operation o = (Operation) rhs;
+            rhs = (Expression) getOperationReference(o, scopeVariables);
+        }
+
+        if(lhs instanceof ColorLiteral || rhs instanceof ColorLiteral) {
+            operation.setError("Invalid variable types used in operation.");
+            return null;
+        }
+
+        if((lhs instanceof PixelLiteral && rhs instanceof PixelLiteral)
+            || (lhs instanceof PercentageLiteral && rhs instanceof PercentageLiteral)) {
+            return rhs;
+        }
+        if((lhs instanceof PixelLiteral && rhs instanceof PercentageLiteral)
+            ||(lhs instanceof PercentageLiteral && rhs instanceof PixelLiteral)) {
+            operation.setError("Do not mix percentage literals with pixel literals in sum.");
+        }
+
         if(operation instanceof MultiplyOperation) {
 
+            if((lhs instanceof PixelLiteral && rhs instanceof ScalarLiteral)
+                || (lhs instanceof PercentageLiteral && rhs instanceof ScalarLiteral)) {
+                return lhs;
+            }
+            if((lhs instanceof ScalarLiteral && rhs instanceof PercentageLiteral)
+                || (lhs instanceof ScalarLiteral && rhs instanceof PixelLiteral)) {
+                return rhs;
+            }
+            operation.setError("Multiplier should atleast contain one scalar variable");
         }
 
         return null;
-
-//        if(variableAssignmentHashMap.get(variableReference).expression instanceof AddOperation) {
-//
-//        }
-//        if(variableAssignmentHashMap.get(variableReference).expression instanceof AddOperation) {
-//
-//        }
     }
 
     private void initializeDeclarationHashMaps() {
