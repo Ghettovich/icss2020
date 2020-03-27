@@ -1,7 +1,17 @@
 ### READ ME
-Transformatie en generen nog niet af, maar zou graag willen weten of de ik aan de algene eisen voldoe (met name AL03).
+Helaas transformatie en generen niet afgekregen, maar zou graag willen weten of de ik aan de algemene eisen voldoe (met name AL03) en op de goede weg zit.
 In de tabellen met een X aangegeven wat is gedaan.
 
+### 4.1 Algemene eisen (0 punten)
+De code die je oplevert is een uitbreiding op de bij de opdracht beschikbaar gestelde startcode. Voor de code gelden de volgende algemene eisen.
+
+ID  |Omschrijving|Prio |Punten |Voldoet?
+----|--------------------------------------------------------------------|------|------|-------
+AL01|De code behoudt de packagestructuur van de aangeleverde startcode. Toegevoegde code bevindt zich in de relevante packages. |Must  |0 |?
+AL02|Alle code compileert en is te bouwen met Maven 3.6 of hoger, onder OpenJDK 13. Tip: controleer dit door **eerst** ```mvn clean``` uit te voeren alvorens te compileren en in te leveren. **Gebruik van Oracle versies van Java is uitdrukkelijk niet toegestaan**.   |Must  |0 |?
+AL03|De code is goed geformatteerd, zo nodig voorzien van commentaar, correcte variabelenamen gebruikt, bevat geen onnodig ingewikkelde constructies en is zo onderhoudbaar mogelijk opgesteld. (naar oordeel van docent)  |Must  |0 |?
+
+### 4.2 Parseren (40 punten)
 
 ID  |Omschrijving|Prio |Punten | Gedaan
 ----|--------------------------------------------------------------------|------|------|-----
