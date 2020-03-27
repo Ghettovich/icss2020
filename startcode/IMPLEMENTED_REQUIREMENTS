@@ -1,3 +1,8 @@
+### READ ME
+Transformatie en generen nog niet af, maar zou graag willen weten of de ik aan de algene eisen voldoe (met name AL03).
+In de tabellen met een X aangegeven wat is gedaan.
+
+
 ID  |Omschrijving|Prio |Punten | Gedaan
 ----|--------------------------------------------------------------------|------|------|-----
 PA01|Implementeer een parser plus listener die AST’s kan maken voor ICSS documenten die “eenvoudige opmaak” kan parseren, zoals beschreven in de taalbeschrijving. In `level0.icss` vind je een voorbeeld van ICSS code die je moet kunnen parseren.  `testParseLevel0()` slaagt.|Must  |10|X
