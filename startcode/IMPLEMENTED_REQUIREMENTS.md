@@ -43,9 +43,9 @@ Om het genereren van de code makkelijker te maken gaan we de AST in een aantal s
  
 Per TR onderdeel kun je 0, 5 of 10 punten krijgen.
 
-ID  |Omschrijving|Prio |Punten
-----|--------------------------------------------------------------------|------|------
-TR01|Implementeer de `EvalExpressions` transformatie. Deze transformatie vervangt alle `Expression` knopen in de AST door een `Literal` knoop met de berekende waarde. |Should|10
+ID  |Omschrijving|Prio |Punten |Gedaan | 
+----|--------------------------------------------------------------------|------|------|-------
+TR01|Implementeer de `EvalExpressions` transformatie. Deze transformatie vervangt alle `Expression` knopen in de AST door een `Literal` knoop met de berekende waarde. |Should|10 |X
 TR02|Implementeer de `RemoveIf `transformatie. Deze transformatie verwijdert alle `IfClause`s uit de AST. Wanneer de conditie van de `IfClause` `TRUE` is wordt deze vervangen door de body van het if-statement. Als de conditie `FALSE` is dan verwijder je de `IfClause`volledig uit de AST.|Should|10
 
 ### 4.5 Genereren (10 punten)
@@ -53,7 +53,7 @@ De laatste stap is het generereren van CSS2-compliant code vanuit ICSS code. Dit
 
 Per GE onderdeel kun je 0 of 5 punten krijgen.
 
-ID  |Omschrijving|Prio |Punten
-----|--------------------------------------------------------------------|------|------
-GE01|Implementeer de generator in nl.han.ica.icss.generator.Generator die de AST naar een CSS2-compliant string omzet.|Must|5
-GE02|Zorg dat de CSS met twee spaties inspringing per scopeniveau  gegenereerd wordt.|Must|5
+ID  |Omschrijving|Prio |Punten |Gedaan
+----|--------------------------------------------------------------------|------|------|-----
+GE01|Implementeer de generator in nl.han.ica.icss.generator.Generator die de AST naar een CSS2-compliant string omzet.|Must|5 | X
+GE02|Zorg dat de CSS met twee spaties inspringing per scopeniveau  gegenereerd wordt.|Must|5 | X

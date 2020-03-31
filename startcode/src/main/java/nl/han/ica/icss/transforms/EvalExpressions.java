@@ -24,12 +24,16 @@ public class EvalExpressions implements Transform {
         variableValues.push(new HashMap<String, Literal>());
         globalVariables = new HashMap<>();
 
-        for (ASTNode node: ast.root.getChildren()) {
+        for (int i = 0; i < ast.root.getChildren().size(); i++) {
+            ASTNode node = ast.root.getChildren().get(i);
 
             if(node instanceof VariableAssignment) {
                 // fill hashmap in linked list
                 globalVariables.put(getVariableReferenceName(((VariableAssignment) node).name),
                         (Literal) getVariableReferenceLiteral((((VariableAssignment) node).expression), null));
+
+                ast.root.removeChild(node);
+                i--;
             }
             if(node instanceof Stylerule) {
                 checkStyleRule((Stylerule)node);
@@ -43,14 +47,27 @@ public class EvalExpressions implements Transform {
 
     private void checkStyleRule(Stylerule stylerule) {
         HashMap<String, Literal> scopeVariables = new HashMap<>();
-        for(ASTNode node: stylerule.body) {
+
+        for (int i = 0; i < stylerule.body.size(); i++) {
+
+            ASTNode node = stylerule.body.get(i);
+
             if(node instanceof VariableAssignment) {
                 scopeVariables.put(getVariableReferenceName(((VariableAssignment) node).name),
                         (Literal) getVariableReferenceLiteral((((VariableAssignment) node).expression), scopeVariables));
+
+                stylerule.body.remove(i);
+                i--;
+            }
+
+            if(node instanceof Declaration) {
+                ((Declaration) node).expression = getVariableReferenceLiteral(((Declaration) node).expression, scopeVariables);
+                stylerule.body.set(i, node);
             }
         }
     }
 
+    // Most of the times it will return a literal
     private Expression getVariableReferenceLiteral(Expression expression, HashMap<String, Literal> scopeVariables) {
 
         if(expression instanceof Operation) {

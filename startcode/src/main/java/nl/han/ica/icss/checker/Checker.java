@@ -7,16 +7,14 @@ import nl.han.ica.icss.ast.literals.ColorLiteral;
 import nl.han.ica.icss.ast.literals.PercentageLiteral;
 import nl.han.ica.icss.ast.literals.PixelLiteral;
 import nl.han.ica.icss.ast.literals.ScalarLiteral;
-import nl.han.ica.icss.ast.operations.AddOperation;
 import nl.han.ica.icss.ast.operations.MultiplyOperation;
-import nl.han.ica.icss.ast.operations.SubtractOperation;
 
 public class Checker {
 
     private HashSet<String> pixelDeclarations;
     private HashSet<String> percentageDeclarations;
     private HashSet<String> colorDeclarations;
-    private HashMap<VariableReference, VariableAssignment> variableAssignmentHashMap = new HashMap<>();
+    private HashMap<VariableReference, VariableAssignment> globalVariables = new HashMap<>();
 
     // Decided not to use the linkedlist, since we only go 1 level deep
     //private LinkedList<HashMap<String, ExpressionType>> variableTypes;
@@ -26,7 +24,7 @@ public class Checker {
         for (ASTNode node : ast.root.getChildren()) {
 
             if (node instanceof VariableAssignment) {
-                variableAssignmentHashMap.put(((VariableAssignment) node).name, (VariableAssignment)node);
+                globalVariables.put(((VariableAssignment) node).name, (VariableAssignment)node);
             }
             if (node instanceof Stylerule) {
                 checkStyleRule((Stylerule) node);
@@ -75,12 +73,12 @@ public class Checker {
     }
 
     private ASTNode getVariableReference(VariableReference variableReference, HashMap<VariableReference, VariableAssignment> scopeVariables) {
-        if (variableAssignmentHashMap.containsKey(variableReference)) {
-            if(variableAssignmentHashMap.get(variableReference).expression instanceof Operation) {
-                 return getOperationReference((Operation)variableAssignmentHashMap.get(variableReference).expression, scopeVariables);
+        if (globalVariables.containsKey(variableReference)) {
+            if(globalVariables.get(variableReference).expression instanceof Operation) {
+                 return getOperationReference((Operation) globalVariables.get(variableReference).expression, scopeVariables);
             }
             else {
-                return variableAssignmentHashMap.get(variableReference).expression;
+                return globalVariables.get(variableReference).expression;
             }
         }
         if (scopeVariables.containsKey(variableReference)) {
@@ -147,6 +145,7 @@ public class Checker {
         return null;
     }
 
+    // This function defines all the allowed properties and their assigned literals.
     private void initializeDeclarationHashMaps() {
         pixelDeclarations = new HashSet<>();
         percentageDeclarations = new HashSet<>();
